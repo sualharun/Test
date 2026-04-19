@@ -84,6 +84,10 @@ npm run preview
 | `DELETE` | `/tasks/{id}` | Yes | Delete task |
 | `POST` | `/run-agent` | Yes | Mock agent response for `{ "prompt": "..." }` |
 
+## Merge rehearsal branches
+
+For multi-PR conflict drills (`test-pr1` … `test-pr6`), see `docs/merge-rehearsal-branches.md`. Those branches intentionally collide on shared files while `test-pr` carries the separate PromptShield insecure demo.
+
 ## Disclaimer
 
 This project is a **controlled teaching / testing baseline**. It omits many controls expected in production (refresh tokens, CSRF strategy for cookie auth, centralized logging, abuse prevention, etc.). Treat it accordingly.
