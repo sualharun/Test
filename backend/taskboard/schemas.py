@@ -133,3 +133,43 @@ class AgentPrompt(BaseModel):
 class AgentResponse(BaseModel):
     response: str
     simulated: bool = True
+
+
+class PromptShieldPrMeta(BaseModel):
+    repo_full_name: str
+    pr_number: int
+    commit_sha: str
+    author_login: str
+    pr_title: str
+
+
+class PromptShieldNode(BaseModel):
+    id: str
+    label: str
+    node_type: str
+    x: float
+    y: float
+    risk: int = Field(ge=0, le=100)
+    metadata: dict = Field(default_factory=dict)
+
+
+class PromptShieldEdge(BaseModel):
+    id: str
+    source: str
+    target: str
+
+
+class PromptShieldChain(BaseModel):
+    path: list[str]
+    node_ids: list[str]
+    edge_ids: list[str]
+    risk_score: int = Field(ge=0, le=100)
+    terminal_type: str
+    fallback: bool = False
+
+
+class PromptShieldContextResponse(BaseModel):
+    pr: PromptShieldPrMeta
+    nodes: list[PromptShieldNode]
+    edges: list[PromptShieldEdge]
+    chains: list[PromptShieldChain]

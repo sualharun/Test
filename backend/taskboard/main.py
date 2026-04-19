@@ -8,6 +8,7 @@ from taskboard.database import Base, engine, get_db
 from taskboard.deps import get_current_user
 from taskboard.health_routes import router as health_router
 from taskboard.models import Task, User
+from taskboard.promptshield_demo import router as promptshield_demo_router
 from taskboard.schemas import (
     AgentPrompt,
     AgentResponse,
@@ -23,6 +24,7 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="TaskBoard API", version="1.0.0")
 app.include_router(health_router)
+app.include_router(promptshield_demo_router)
 
 _settings = get_settings()
 app.add_middleware(

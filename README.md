@@ -86,6 +86,28 @@ npm run preview
 | `GET` | `/health` | No | Liveness JSON |
 | `GET` | `/version` | No | Build / runtime metadata |
 
+## PromptShield multi-repo demo (deterministic)
+
+This repo includes a synthetic graph demo that mimics a PromptShield-style "single PR, multi-repo compromise context" flow.
+
+- Backend endpoint: authenticated `GET /demo/promptshield/context`
+- Frontend page: authenticated `/promptshield-demo`
+- Data is fully local/synthetic and deterministic (no external network calls, no LLM path generation)
+
+Graph nodes include:
+- First-party repo (`sualharun/Test`)
+- Dependencies
+- Maintainers
+- External vulnerable repos with CVE metadata
+
+Attack chains are ranked with deterministic rules:
+- Sum weighted edge transitions (`repo->package`, `package->maintainer`, `maintainer->vulnerable_repo`, etc.)
+- Add terminal severity bonus
+- Add small path-length bonus
+- Cap at 100
+
+If no qualifying chain exists, backend emits a deterministic fallback chain so playback always has at least one path.
+
 ## Vulnerability demo branches
 
 See `docs/vulnerability-branches.md`. Named `vuln-*` branches add **intentionally unsafe** endpoints and UI for PromptShield demos; they may **conflict with each other** on shared files to exercise merge tooling.
