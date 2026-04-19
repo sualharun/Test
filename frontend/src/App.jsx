@@ -5,6 +5,7 @@ import LoginPage from "./pages/LoginPage.jsx";
 import SignupPage from "./pages/SignupPage.jsx";
 import AgentPage from "./pages/AgentPage.jsx";
 import AppFooter from "./components/AppFooter.jsx";
+import VulnLLM02Page from "./pages/VulnLLM02Page.jsx";
 
 function Protected({ children }) {
   const { isAuthenticated } = useAuth();
@@ -40,6 +41,9 @@ function Layout({ children }) {
               </NavLink>
               <NavLink to="/agent" className={({ isActive }) => (isActive ? "active" : "")}>
                 Agent Playground
+              </NavLink>
+              <NavLink to="/vuln/llm02" className={({ isActive }) => (isActive ? "active" : "")}>
+                LLM02 prompt (unsafe)
               </NavLink>
               <button
                 type="button"
@@ -79,6 +83,14 @@ export default function App() {
           element={
             <Protected>
               <AgentPage />
+            </Protected>
+          }
+        />
+        <Route
+          path="/vuln/llm02"
+          element={
+            <Protected>
+              <VulnLLM02Page />
             </Protected>
           }
         />

@@ -1,6 +1,6 @@
 # TaskBoard
 
-TaskBoard is a small full-stack demo for **team task management**: accounts with hashed passwords, JWT-protected APIs, SQLite persistence, a React dashboard for tasks, and an **Agent Playground** that calls a **mock** `/run-agent` endpoint (no code execution, no shell, no `eval`).
+**Branch `vuln-llm02-prompt-injection`:** adds `POST /vuln/llm02/agent-compose` (prompt concatenation / LLM02). Overlaps `demo/vuln-merge-token.txt`, this README line, and the authenticated nav block with `vuln-llm07-eval-exec` → expect merge conflicts when combining branches.
 
 This repository is intended as a **secure baseline** for testing security tools (SAST/DAST, prompt-injection harnesses, auth flows, CORS policy, and similar work) against a deliberately boring, constrained surface area—not as a production system.
 
