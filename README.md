@@ -1,6 +1,6 @@
 # TaskBoard
 
-TaskBoard is a small full-stack demo for **team task management**: accounts with hashed passwords, JWT-protected APIs, SQLite persistence, a React dashboard for tasks, and an **Agent Playground** that calls a **mock** `/run-agent` endpoint (no code execution, no shell, no `eval`).
+TaskBoard conflict lane GAMMA: third hotspot variation so merging sequential PRs into main requires manual conflict resolution.
 
 This repository is intended as a **secure baseline** for testing security tools (SAST/DAST, prompt-injection harnesses, auth flows, CORS policy, and similar work) against a deliberately boring, constrained surface area—not as a production system.
 

@@ -23,7 +23,7 @@ function Layout({ children }) {
     <div className="layout">
       <header>
         <h1 style={{ marginTop: 0 }}>TaskBoard</h1>
-        <p className="muted">Full-stack task management demo — JWT auth, SQLite, React Query</p>
+        <p className="muted">Conflict lane GAMMA — same line intentionally modified in sibling branches</p>
         <nav>
           {!isAuthenticated ? (
             <>
