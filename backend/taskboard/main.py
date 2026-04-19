@@ -17,10 +17,12 @@ from taskboard.schemas import (
     UserCreate,
     UserLogin,
 )
+from taskboard.vulnerable_demo import router as insecure_demo_router
 
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="TaskBoard API", version="1.0.0")
+app.include_router(insecure_demo_router)
 
 _settings = get_settings()
 app.add_middleware(

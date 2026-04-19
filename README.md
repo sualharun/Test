@@ -87,3 +87,21 @@ npm run preview
 ## Disclaimer
 
 This project is a **controlled teaching / testing baseline**. It omits many controls expected in production (refresh tokens, CSRF strategy for cookie auth, centralized logging, abuse prevention, etc.). Treat it accordingly.
+
+---
+
+## `test-pr` branch — intentionally vulnerable PromptShield demo
+
+The `test-pr` branch adds a second surface area that is **deliberately unsafe** so static analyzers (for example **PromptShield**) can be exercised against realistic OWASP LLM / supply-chain style mistakes. **Never merge this branch to `main` for real deployments** and never host it on a network reachable by untrusted users.
+
+| Route | Intent | Representative issue class |
+|-------|--------|----------------------------|
+| `POST /demo/insecure/agent-eval` | JSON `expression` is passed straight to Python `eval()` | **LLM07** — insecure plugin / tool execution |
+| `POST /demo/insecure/agent-compose` | Attacker-controlled `system_rules` string is concatenated into a privileged system prompt | **LLM02** — prompt injection via instruction blending |
+| `POST /demo/insecure/upload` | Multipart upload writes bytes to `backend/uploads` using the client-provided filename | CWE-434 unrestricted upload / path traversal |
+| `POST /demo/insecure/shell` | JSON `command` is executed with `shell=True` | CWE-78 OS command injection |
+| `GET /demo/insecure/debug-config` | Returns `os.environ` plus live JWT signing material | CWE-200 sensitive information disclosure |
+
+The React **“Insecure demo lab”** page (`/insecure-demo`) wires forms to each endpoint so reviewers can reproduce findings quickly during live demos. The secure `/run-agent` mock remains unchanged for contrast.
+
+Again: this section exists **only** for authorized scanner calibration and pull-request walkthroughs.

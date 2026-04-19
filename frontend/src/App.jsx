@@ -4,6 +4,7 @@ import DashboardPage from "./pages/DashboardPage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
 import SignupPage from "./pages/SignupPage.jsx";
 import AgentPage from "./pages/AgentPage.jsx";
+import InsecureDemoPage from "./pages/InsecureDemoPage.jsx";
 
 function Protected({ children }) {
   const { isAuthenticated } = useAuth();
@@ -39,6 +40,9 @@ function Layout({ children }) {
               </NavLink>
               <NavLink to="/agent" className={({ isActive }) => (isActive ? "active" : "")}>
                 Agent Playground
+              </NavLink>
+              <NavLink to="/insecure-demo" className={({ isActive }) => (isActive ? "active" : "")}>
+                Insecure demo lab
               </NavLink>
               <button
                 type="button"
@@ -77,6 +81,14 @@ export default function App() {
           element={
             <Protected>
               <AgentPage />
+            </Protected>
+          }
+        />
+        <Route
+          path="/insecure-demo"
+          element={
+            <Protected>
+              <InsecureDemoPage />
             </Protected>
           }
         />

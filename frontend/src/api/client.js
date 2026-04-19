@@ -90,3 +90,47 @@ function formatDetail(detail) {
   }
   return JSON.stringify(detail);
 }
+
+/**
+ * Multipart upload: do not set Content-Type manually (browser sets boundary).
+ */
+export async function apiUpload(path, file, { token, signal } = {}) {
+  const url = `${API_BASE}${path.startsWith("/") ? path : `/${path}`}`;
+  const headers = new Headers();
+  const t = token ?? getStoredToken();
+  if (t) headers.set("Authorization", `Bearer ${t}`);
+
+  const form = new FormData();
+  form.append("file", file, file.name);
+
+  let res;
+  try {
+    res = await fetch(url, { method: "POST", headers, body: form, signal, cache: "no-store" });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Network error";
+    throw new Error(`Request failed: ${message}`);
+  }
+
+  const contentType = res.headers.get("content-type") || "";
+  const isJson = contentType.includes("application/json");
+  const text = await res.text();
+  let data = null;
+  if (text && isJson) {
+    try {
+      data = JSON.parse(text);
+    } catch {
+      throw new Error("Invalid JSON from server");
+    }
+  }
+
+  if (!res.ok) {
+    const detail =
+      data && typeof data === "object" && "detail" in data ? formatDetail(data.detail) : text.slice(0, 200) || res.statusText;
+    const err = new Error(detail || `HTTP ${res.status}`);
+    err.status = res.status;
+    err.data = data;
+    throw err;
+  }
+
+  return { status: res.status, data };
+}
