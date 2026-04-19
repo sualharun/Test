@@ -138,7 +138,7 @@ def run_agent(
     if len(payload.prompt) > 280:
         preview += "…"
     text = (
-        f"[Simulated agent] Received a prompt of {len(payload.prompt)} characters. "
+        f"[Simulated agent / ALPHA] Received a prompt of {len(payload.prompt)} characters. "
         f"Preview: {preview!r}. No external tools were invoked; "
         "this response is fixed logic for security testing baselines."
     )

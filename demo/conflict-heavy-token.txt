@@ -1,0 +1,2 @@
+lane=alpha
+intent=merge-conflict
