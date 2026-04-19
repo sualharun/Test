@@ -1,4 +1,5 @@
 import re
+from datetime import datetime
 from typing import Literal
 
 from pydantic import BaseModel, EmailStr, Field, field_validator
@@ -113,6 +114,8 @@ class TaskRead(BaseModel):
     title: str
     description: str | None
     status: str
+    created_at: datetime
+    updated_at: datetime
 
 
 class AgentPrompt(BaseModel):

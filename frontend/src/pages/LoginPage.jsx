@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
+import { z } from "zod";
 import { useAuth } from "../auth/AuthContext.jsx";
+
+const loginSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(1).max(128),
+});
 
 export default function LoginPage() {
   const { login, isAuthenticated } = useAuth();
@@ -17,9 +23,14 @@ export default function LoginPage() {
   async function onSubmit(e) {
     e.preventDefault();
     setError("");
+    const parsed = loginSchema.safeParse({ email: email.trim(), password });
+    if (!parsed.success) {
+      setError(parsed.error.issues.map((e) => e.message).join("; "));
+      return;
+    }
     setLoading(true);
     try {
-      await login(email.trim(), password);
+      await login(parsed.data.email, parsed.data.password);
       navigate("/", { replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");

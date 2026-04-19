@@ -4,6 +4,7 @@ import DashboardPage from "./pages/DashboardPage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
 import SignupPage from "./pages/SignupPage.jsx";
 import AgentPage from "./pages/AgentPage.jsx";
+import AppFooter from "./components/AppFooter.jsx";
 
 function Protected({ children }) {
   const { isAuthenticated } = useAuth();
@@ -21,7 +22,7 @@ function Layout({ children }) {
     <div className="layout">
       <header>
         <h1 style={{ marginTop: 0 }}>TaskBoard</h1>
-        <p className="muted">Team task management (demo baseline)</p>
+        <p className="muted">Full-stack task management demo — JWT auth, SQLite, React Query</p>
         <nav>
           {!isAuthenticated ? (
             <>
@@ -54,6 +55,7 @@ function Layout({ children }) {
         </nav>
       </header>
       {children}
+      <AppFooter />
     </div>
   );
 }

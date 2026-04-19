@@ -1,59 +1,76 @@
-import { useCallback, useEffect, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import clsx from "clsx";
+import { format, parseISO } from "date-fns";
+import { useEffect, useState } from "react";
 import { apiFetch } from "../api/client.js";
 import { useAuth } from "../auth/AuthContext.jsx";
 
 const STATUSES = ["open", "in_progress", "done"];
 
+function formatTs(iso) {
+  if (!iso) return "—";
+  try {
+    return format(parseISO(iso), "MMM d, yyyy HH:mm");
+  } catch {
+    return String(iso);
+  }
+}
+
 export default function DashboardPage() {
   const { token, logout } = useAuth();
-  const [tasks, setTasks] = useState([]);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [status, setStatus] = useState("open");
 
-  const load = useCallback(async () => {
-    setError("");
-    setLoading(true);
-    try {
+  const tasksQuery = useQuery({
+    queryKey: ["tasks", token],
+    enabled: Boolean(token),
+    queryFn: async () => {
       const { data } = await apiFetch("/tasks", { token });
-      setTasks(Array.isArray(data) ? data : []);
-    } catch (err) {
-      if (err instanceof Error && err.status === 401) {
-        logout();
-      }
-      setError(err instanceof Error ? err.message : "Failed to load tasks");
-    } finally {
-      setLoading(false);
-    }
-  }, [token, logout]);
+      return Array.isArray(data) ? data : [];
+    },
+  });
 
   useEffect(() => {
-    load();
-  }, [load]);
+    const err = tasksQuery.error;
+    if (err instanceof Error && err.status === 401) logout();
+  }, [tasksQuery.error, logout]);
 
-  async function createTask(e) {
-    e.preventDefault();
-    setError("");
-    try {
+  const createMutation = useMutation({
+    mutationFn: async () => {
       await apiFetch("/tasks", {
         method: "POST",
         json: true,
         body: { title: title.trim(), description: description.trim() || null, status },
         token,
       });
+    },
+    onSuccess: () => {
       setTitle("");
       setDescription("");
       setStatus("open");
-      await load();
+      queryClient.invalidateQueries({ queryKey: ["tasks", token] });
+    },
+  });
+
+  const error =
+    tasksQuery.error instanceof Error
+      ? tasksQuery.error.message
+      : tasksQuery.error
+        ? String(tasksQuery.error)
+        : "";
+
+  async function createTask(e) {
+    e.preventDefault();
+    try {
+      await createMutation.mutateAsync();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not create task");
+      /* surfaced via mutation state if we wire setError; keep simple */
     }
   }
 
   async function updateTask(task, patch) {
-    setError("");
     try {
       await apiFetch(`/tasks/${task.id}`, {
         method: "PUT",
@@ -61,27 +78,32 @@ export default function DashboardPage() {
         body: patch,
         token,
       });
-      await load();
+      await queryClient.invalidateQueries({ queryKey: ["tasks", token] });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not update task");
+      if (err instanceof Error && err.status === 401) logout();
     }
   }
 
   async function deleteTask(id) {
     if (!window.confirm("Delete this task?")) return;
-    setError("");
     try {
       await apiFetch(`/tasks/${id}`, { method: "DELETE", token });
-      await load();
+      await queryClient.invalidateQueries({ queryKey: ["tasks", token] });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not delete task");
+      if (err instanceof Error && err.status === 401) logout();
     }
   }
+
+  const tasks = tasksQuery.data ?? [];
+  const loading = tasksQuery.isLoading;
 
   return (
     <div>
       <h2>Dashboard</h2>
       {error ? <div className="error">{error}</div> : null}
+      {createMutation.isError ? (
+        <div className="error">{createMutation.error instanceof Error ? createMutation.error.message : "Create failed"}</div>
+      ) : null}
 
       <div className="card">
         <h3 style={{ marginTop: 0 }}>Add task</h3>
@@ -110,8 +132,8 @@ export default function DashboardPage() {
               ))}
             </select>
           </div>
-          <button className="primary" type="submit">
-            Add task
+          <button className="primary" type="submit" disabled={createMutation.isPending}>
+            {createMutation.isPending ? "Adding…" : "Add task"}
           </button>
         </form>
       </div>
@@ -128,6 +150,7 @@ export default function DashboardPage() {
                   <th>Title</th>
                   <th>Description</th>
                   <th>Status</th>
+                  <th>Created</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -155,7 +178,20 @@ function TaskRow({ task, onUpdate, onDelete }) {
       <tr>
         <td>{task.title}</td>
         <td>{task.description || "—"}</td>
-        <td>{task.status}</td>
+        <td>
+          <span
+            className={clsx("status-pill", {
+              "status-open": task.status === "open",
+              "status-progress": task.status === "in_progress",
+              "status-done": task.status === "done",
+            })}
+          >
+            {task.status}
+          </span>
+        </td>
+        <td className="muted" style={{ fontSize: "0.85rem", whiteSpace: "nowrap" }}>
+          {formatTs(task.created_at)}
+        </td>
         <td>
           <div className="row">
             <button type="button" onClick={() => setEditing(true)}>
@@ -172,7 +208,7 @@ function TaskRow({ task, onUpdate, onDelete }) {
 
   return (
     <tr>
-      <td colSpan={4}>
+      <td colSpan={5}>
         <div className="card" style={{ margin: 0 }}>
           <div style={{ marginBottom: "0.5rem" }}>
             <label>Title</label>

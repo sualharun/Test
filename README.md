@@ -6,8 +6,8 @@ This repository is intended as a **secure baseline** for testing security tools 
 
 ## Architecture
 
-- **Backend:** Python 3.11+, FastAPI, SQLAlchemy, SQLite, `passlib` (bcrypt), `python-jose` (JWT), Pydantic validation on all payloads.
-- **Frontend:** React 18 + Vite, React Router, centralized `fetch` helper with JSON/content-type handling and consistent HTTP error surfacing.
+- **Backend:** Python 3.11+, FastAPI, SQLAlchemy, SQLite, `passlib` (bcrypt), `python-jose` (JWT), Pydantic validation on all payloads. Extra libraries in `requirements.txt` (for example `httpx`, `orjson`, `PyYAML`, `tenacity`, `rich`) keep SBOM / dependency-graph demos realistic—`main` does not ship vulnerable routes.
+- **Frontend:** React 18 + Vite, React Router, **TanStack Query** for server state, **Zod** for lightweight client validation, **date-fns** + **clsx** for formatting and styling. Centralized `fetch` helper with JSON handling and HTTP errors.
 
 ## Security properties (by design)
 
@@ -83,10 +83,12 @@ npm run preview
 | `PUT` | `/tasks/{id}` | Yes | Update task |
 | `DELETE` | `/tasks/{id}` | Yes | Delete task |
 | `POST` | `/run-agent` | Yes | Mock agent response for `{ "prompt": "..." }` |
+| `GET` | `/health` | No | Liveness JSON |
+| `GET` | `/version` | No | Build / runtime metadata |
 
-## Merge rehearsal branches
+## Vulnerability demo branches
 
-For multi-PR conflict drills (`test-pr1` … `test-pr6`), see `docs/merge-rehearsal-branches.md`. Those branches intentionally collide on shared files while `test-pr` carries the separate PromptShield insecure demo.
+See `docs/vulnerability-branches.md`. Named `vuln-*` branches add **intentionally unsafe** endpoints and UI for PromptShield demos; they may **conflict with each other** on shared files to exercise merge tooling.
 
 ## Disclaimer
 
